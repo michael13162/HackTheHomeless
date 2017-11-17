@@ -19,6 +19,11 @@ def register():
 
 @app.route('/api/account/user', methods=['GET'])
 def user():
+    email = request.args.get('email')
+    password = request.args.get('password')
+    print(email)
+    print(password)
+
     js = []
     js.append("Yo Will")
     return Response(json.dumps(js), mimetype='application/json')
