@@ -1,12 +1,16 @@
 package com.homelessqrypto.homelessqryptoapp;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -84,6 +88,62 @@ public class QRHistoryPage extends AppCompatActivity {
                                     purchaseHistoryLayout.addView(addedLayout);
                                 }
 
+                                final int finalHomelessId = homelessId;
+
+                                Button donateButton = findViewById(R.id.donation_button);
+                                donateButton.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        try {
+                                            EditText donation = (EditText) findViewById(R.id.donation_amount_edit_text);
+                                            final double donationAmount = Double.parseDouble(donation.getText().toString());
+                                            String url = GlobalApplicationProperties.serverUrl + "/api/account/user/donate";
+                                            JSONObject jsonObject = new JSONObject("{\"email\":\"" + GlobalApplicationProperties.email + "\", \"password\":\"" + GlobalApplicationProperties.password + "\", \"spenderId\":\"" + finalHomelessId +"\", \"amount\":" + donationAmount +"}");
+                                            JsonObjectRequest request = new JsonObjectRequest(url, jsonObject,
+                                                    new Response.Listener<JSONObject>() {
+                                                        @Override
+                                                        public void onResponse(JSONObject response) {
+                                                            AlertDialog.Builder builder;
+                                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                                                builder = new AlertDialog.Builder(me, android.R.style.Theme_Material_Dialog_Alert);
+                                                            } else {
+                                                                builder = new AlertDialog.Builder(me);
+                                                            }
+                                                            builder.setTitle("Donation Succeeded")
+                                                                    .setMessage("You have donated " + donationAmount + " HTH")
+                                                                    .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                                                        public void onClick(DialogInterface dialog, int which) {
+                                                                            Intent intent = new Intent(me, MainPage.class);
+                                                                            startActivity(intent);
+                                                                        }
+                                                                    })
+                                                                    .setIcon(android.R.drawable.ic_dialog_alert)
+                                                                    .show();
+                                                        }
+                                                    },
+                                                    new Response.ErrorListener() {
+                                                        @Override
+                                                        public void onErrorResponse(VolleyError error) {
+                                                            AlertDialog.Builder builder;
+                                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                                                builder = new AlertDialog.Builder(me, android.R.style.Theme_Material_Dialog_Alert);
+                                                            } else {
+                                                                builder = new AlertDialog.Builder(me);
+                                                            }
+                                                            builder.setTitle("Donation Failed")
+                                                                    .setMessage("Insufficient Funds to Make Donation")
+                                                                    .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                                                        public void onClick(DialogInterface dialog, int which) { }
+                                                                    })
+                                                                    .setIcon(android.R.drawable.ic_dialog_alert)
+                                                                    .show();
+                                                        }
+                                                    });
+                                            queue.add(request);
+                                        } catch (JSONException e) { }
+                                    }
+                                });
+
                                 String user_url = GlobalApplicationProperties.serverUrl + "/api/account/user/" + homelessId;
 
                                 JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, user_url,
@@ -115,13 +175,5 @@ public class QRHistoryPage extends AppCompatActivity {
                     });
             queue.add(request);
         } catch (Exception e) { }
-
-        Button donateButton = findViewById(R.id.donation_button);
-        donateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                
-            }
-        });
     }
 }
