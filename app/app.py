@@ -126,7 +126,7 @@ def donate():
         amount
     )
     insert_id = insert_db(query)
-    return message_response(200, str(insert_id) + 'The donation was successful!', 'application/json')
+    return message_response(200, 'Donate successful!', 'application/json')
 
 @app.route('/api/account/user/buy', methods=['POST'])
 def buy():
@@ -168,12 +168,12 @@ def purchase():
     blockchain.processTransaction(get_user_data(spenderId)['qr'], get_user_data(user_id)['qr'], amount)
 
     query = 'insert into purchases(spenderId, amount, description, temporal) values(\'%s\', \'%s\', \'%s\', datetime())' % (
-        spender_id,
+        spenderId,
         amount,
         description
     )
     insert_id = insert_db(query)
-    return message_response(200, str(insert_id) + 'The transaction was successful!', 'application/json')
+    return message_response(200, 'The transaction was successful!', 'application/json')
 
 @app.route('/api/account/user/balance', methods=['GET'])
 def balance():
@@ -217,7 +217,8 @@ def insert_db(query):
     return insert_id
 
 def message_response(status_code, message, mime_type):
-    return Response(json.dumps("{'message':'" + message + "'}"), status=status_code, mimetype=mime_type)
+    js = { 'message' : message }
+    return Response(json.dumps(js), status=status_code, mimetype=mime_type)
 
 def check_user_rows(rows):
     if (len(rows) == 0):
