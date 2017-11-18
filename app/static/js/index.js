@@ -1,4 +1,4 @@
-var server_url = '192.168.43.231'
+var server_url = 'http://192.168.43.231'
 
 var $inputForm = $('#input-form').show();
 var $popup = $('#popup').hide();
