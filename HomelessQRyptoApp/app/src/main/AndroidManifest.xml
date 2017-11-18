@@ -44,7 +44,8 @@
         <activity android:name=".DonationHistoryPage" />
         <activity android:name=".PhotoPage" />
         <activity android:name=".QRHistoryPage" />
-        <activity android:name=".FullScannerActivity"></activity>
+        <activity android:name=".FullScannerActivity" />
+        <activity android:name=".SalePage"></activity>
     </application>
 
 </manifest>

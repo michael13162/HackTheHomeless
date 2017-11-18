@@ -73,10 +73,7 @@ def purchases():
         return message_response(400, 'The query string does not have a publicHash or a spenderId', 'application/json')
 
     if (spenderId == ''):
-        query = 'select * from users where publicHash=\'%s\'' % (publicHash)
-        rows = query_db(query)
-        check_user_rows(rows)
-        spenderId = rows[0]['id']
+        spenderId = get_spender_id(publicHash)
 
     query = '''
             select * from purchases where spenderId=\'%s\'
@@ -90,7 +87,7 @@ def purchases():
         purchases.append({
             'spenderId' : spenderId,
             'amount' : row['amount'],
-            'description' row['description'],
+            'description' : row['description'],
             'date' : row['temporal']
         })
 
@@ -106,14 +103,18 @@ def donate():
     spender_id = donate_info['spenderId']
     amount = donate_info['amount']
 
+    if amount > get_user_data(user_id)['balance']:
+        return message_response(400, 'The user does not have enough balance for this donation amount', 'application/json')
+
+    blockchain.processTransaction(get_user_data(user_id)['publicHash'], get_user_data(spender_id)['publicHash'], amount)
+
     query = 'insert into donations(donorId, spenderId, amount, temporal) values(\'%s\', \'%s\', \'%s\', datetime())' % (
         user_id,
         spender_id,
         amount
     )
     insert_id = insert_db(query)
-    print(insert_id)
-    return message_response(200, 'The donation was successful!', 'application/json')
+    return message_response(200, str(insert_id) + 'The donation was successful!', 'application/json')
 
 @app.route('/api/account/user/buy', methods=['POST'])
 def buy():
@@ -127,7 +128,7 @@ def buy():
 
     balance = blockchain.getBalance(publicHash)
     blockchain.setBalance(publicHash, balance + amount)
-    
+
     return message_response(200, 'The purchase of HTH was successful!', 'application/json')
 
 @app.route('/api/account/user/purchase', methods=['POST'])
@@ -141,9 +142,20 @@ def purchase():
 
     amount = purchase_info['amount']
     description = purchase_info['description']
-    publicHash = purchase_info['publicHash']
+    spenderId = get_spender_id(purchase_info['publicHash'])
 
-    # TODO Michael
+    if amount > get_user_data(spenderId)['balance']:
+        return message_response(400, 'The spender does not have enough balance for this purchase amount', 'application/json')
+
+    blockchain.processTransaction(get_user_data(spenderId)['publicHash'], get_user_data(user_id)['publicHash'], amount)
+
+    query = 'insert into purchases(spenderId, amount, description, temporal) values(\'%s\', \'%s\', \'%s\', datetime())' % (
+        spender_id,
+        amount,
+        description
+    )
+    insert_id = insert_db(query)
+    return message_response(200, str(insert_id) + 'The transaction was successful!', 'application/json')
 
 @app.route('/api/account/user/balance', methods=['GET'])
 def balance():
@@ -314,6 +326,12 @@ def get_user_donations(user_id):
         })
 
     return js
+
+def get_spender_id(publicHash):
+    query = 'select * from users where publicHash=\'%s\'' % (publicHash)
+    rows = query_db(query)
+    check_user_rows(rows)
+    return rows[0]['id']
 
 if __name__ == '__main__':
     app.run()
