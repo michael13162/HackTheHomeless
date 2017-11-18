@@ -15,6 +15,7 @@ w3 = Web3(HTTPProvider('http://localhost:8545'))
 
 @app.route('/')
 def index():
+    print(request.get_json())
     return render_template('index.html')
 
 @app.route('/api/account/register', methods=['POST'])
@@ -40,23 +41,28 @@ def register():
 
 @app.route('/api/account/user', methods=['POST'])
 def user():
+    print(request.get_json())
     user_id = get_user_id(request)
     js = get_user_data(user_id)
+    print(json.dumps(js))
     return Response(json.dumps(js), mimetype='application/json')
 
 @app.route('/api/account/user/<int:user_id>', methods=['GET'])
-def user_by_id():
-	js = get_user_data(user_id)
-	return Response(json.dumps(js), mimetype='application/json')
+def user_by_id(user_id):
+    print(request.get_json())
+    js = get_user_data(user_id)
+    return Response(json.dumps(js), mimetype='application/json')
 
 @app.route('/api/account/user/transactions', methods=['POST'])
 def transactions():
+    print(request.get_json())
     user_id = get_user_id(request)
     js = get_user_transactions(user_id)
     return Response(json.dumps(js), mimetype='application/json')
 
 @app.route('/api/account/user/donations', methods=['POST'])
 def donations():
+    print(request.get_json())
     user_id = get_user_id(request)
     js = get_user_donations(user_id)
     return Response(json.dumps(js), mimetype='application/json')
@@ -74,7 +80,7 @@ def purchases():
 
     if (spenderId == ''):
         spenderId = get_spender_id(publicHash)
-        if (spenderId == None)
+        if (spenderId == None):
             return message_response(400, 'ERROR', 'application/json')
 
     query = '''
@@ -83,7 +89,7 @@ def purchases():
             ''' % (spenderId)
     rows = query_db(query)
 
-    js = { 'purchases' : [] }
+    js = { 'purchases' : [], 'spenderId' : spenderId }
     purchases = js['purchases']
     for row in rows:
         purchases.append({
@@ -93,7 +99,7 @@ def purchases():
             'date' : row['temporal']
         })
 
-    return js
+    return Response(json.dumps(js), mimetype='application/json')
 
 @app.route('/api/account/user/donate', methods=['POST'])
 def donate():
@@ -102,13 +108,17 @@ def donate():
     '''
     user_id = get_user_id(request)
     donate_info = request.get_json()
+    print('donate_info: ' + str(donate_info))
     spender_id = donate_info['spenderId']
     amount = donate_info['amount']
 
     if amount > get_user_data(user_id)['balance']:
         return message_response(400, 'The user does not have enough balance for this donation amount', 'application/json')
 
-    blockchain.processTransaction(get_user_data(user_id)['publicHash'], get_user_data(spender_id)['publicHash'], amount)
+    print('spender_id: ' + spender_id)
+    print('user_data: ' + str(get_user_data(user_id)))
+    print('spender_data: ' + str(get_user_data(spender_id)))
+    blockchain.processTransaction(get_user_data(user_id)['qr'], get_user_data(spender_id)['qr'], amount)
 
     query = 'insert into donations(donorId, spenderId, amount, temporal) values(\'%s\', \'%s\', \'%s\', datetime())' % (
         user_id,
@@ -123,15 +133,18 @@ def buy():
     '''
     gets email, password, amount
     '''
+    print(request.get_json())
     user_id = get_user_id(request)
     user_data = get_user_data(user_id)
     publicHash = user_data['qr']
     amount = request.get_json()['amount']
 
     balance = blockchain.getBalance(publicHash)
-    blockchain.setBalance(publicHash, balance + amount)
+    new_balance = balance + amount
+    blockchain.setBalance(publicHash, new_balance)
 
-    return message_response(200, 'The purchase of HTH was successful!', 'application/json')
+    js = { 'balance' : new_balance }
+    return Response(json.dumps(js), mimetype='application/json')
 
 @app.route('/api/account/user/purchase', methods=['POST'])
 def purchase():
@@ -141,17 +154,18 @@ def purchase():
     '''
     user_id = get_user_id(request)
     purchase_info = request.get_json()
+    print(purchase_info)
 
     amount = purchase_info['amount']
     description = purchase_info['description']
     spenderId = get_spender_id(purchase_info['publicHash'])
-    if (spenderId == None)
+    if (spenderId == None):
         return message_response(400, 'ERROR', 'application/json')
 
     if amount > get_user_data(spenderId)['balance']:
         return message_response(400, 'The spender does not have enough balance for this purchase amount', 'application/json')
 
-    blockchain.processTransaction(get_user_data(spenderId)['publicHash'], get_user_data(user_id)['publicHash'], amount)
+    blockchain.processTransaction(get_user_data(spenderId)['qr'], get_user_data(user_id)['qr'], amount)
 
     query = 'insert into purchases(spenderId, amount, description, temporal) values(\'%s\', \'%s\', \'%s\', datetime())' % (
         spender_id,
@@ -203,7 +217,7 @@ def insert_db(query):
     return insert_id
 
 def message_response(status_code, message, mime_type):
-    return Response("{'message':'" + message + "'}", status=status_code, mimetype=mime_type)
+    return Response(json.dumps("{'message':'" + message + "'}"), status=status_code, mimetype=mime_type)
 
 def check_user_rows(rows):
     if (len(rows) == 0):
@@ -248,6 +262,8 @@ def get_user_data(user_id):
         return None
 
     user = rows[0]
+
+    print(user)
 
     js = {
         'name' : user['name'],
