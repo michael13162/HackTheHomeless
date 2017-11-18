@@ -143,7 +143,7 @@ def get_user_transactions(user_id):
     	insert into transactions
             select 'Donation',amount,'Donation',temporal from donations;
     	''')
-    query_db('''        
+    query_db('''
     	insert into transactions
             select 'Purchase',amount,description,temporal from purchases;
         ''')
@@ -152,7 +152,7 @@ def get_user_transactions(user_id):
             order by temporal asc;
         ''')
     query_db('''drop table if exists transactions;''')
-    query_db('''commit''')
+    query_db('''commit;''')
 
     js = { 'transactions': [] }
     transactions = js['transactions']
