@@ -4,5 +4,5 @@ class GlobalApplicationProperties {
     static String name;
     static String email;
     static String password;
-    static String serverUrl = "localhost:5000";
+    static String serverUrl = "http://192.168.43.231:5000";
 }

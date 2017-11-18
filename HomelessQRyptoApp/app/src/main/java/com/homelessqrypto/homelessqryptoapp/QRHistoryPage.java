@@ -45,7 +45,7 @@ public class QRHistoryPage extends AppCompatActivity {
             if (idMessage != null) {
                 url += "spenderId=" + idMessage;
             } else if (qrMessage != null) {
-                url += "publicHash=" + idMessage;
+                url += "publicHash=" + qrMessage;
             }
             JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url,
                     new Response.Listener<JSONObject>() {
