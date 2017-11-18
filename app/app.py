@@ -1,8 +1,8 @@
 import json
 import sqlite3
 import os
+import hashlib
 from flask import Flask, g, render_template, request, Response
-from hashlib import blake2b
 
 template_dir = os.path.abspath('web')
 DATABASE = '../database/hackthehomeless.db'
@@ -17,25 +17,22 @@ def register():
     register_info = request.get_json()
     print(register_info)
 
+    s = hashlib.sha3_256()
+    s.update(str.encode(name))
+    publicHash = s.hexdigest()
     name = register_info['name']
     email = register_info['email']
     password = register_info['password']
-    publicHash = blake2b(str.encode(name)).hexdigest()
 
-    cur = get_db().cursor()
     query = 'insert into users(name, email, password, publicHash, qr) values(\'%s\', \'%s\', \'%s\', \'%s\', \'%s\')' % (
         name,
         email,
         password,
-        publicHash,
+        publicHash
     )
-    cur.execute(query)
-    get_db().commit()
-    user_id = cur.lastrowid
-    cur.close()
+    user_id = insert_db(query):
 
     js = get_user_data(user_id)
-    # TODO return 200 if can't be registered
     return Response(json.dumps(js), mimetype='application/json')
 
 @app.route('/api/account/user', methods=['POST'])
@@ -48,6 +45,70 @@ def user():
 def transactions():
     user_id = get_user_id(request)
     js = get_user_transactions(user_id)
+    return Response(json.dumps(js), mimetype='application/json')
+
+@app.route('/api/account/user/donations', methods=['POST'])
+def donations():
+    user_id = get_user_id(request)
+    js = get_user_donations(user_id)
+    return Response(json.dumps(js), mimetype='application/json')
+
+@app.route('/api/account/user/purchases', methods=['GET'])
+def purchases():
+    '''
+    can get publicHash OR id as url params
+    return date, description, amount, id
+    '''
+    # TODO Michael
+
+@app.route('/api/account/user/donate', methods=['POST'])
+def donate():
+    '''
+    gets spenderId, email, password
+    '''
+    user_id = get_user_id(request)
+    donate_info = request.get_json()
+    spender_id = donate_info['spenderId']
+    amount = donate_info['amount']
+
+    query = 'insert into donations(donorId, spenderId, amount, temporal) values(\'%s\', \'%s\', \'%s\', datetime())' % (
+        user_id,
+        spender_id,
+        amount
+    )
+    insert_id = insert_db(query):
+    print(insert_id)
+    return message_response(200, 'The donation was successful!', 'application/json')
+
+@app.route('/api/account/user/buy', methods=['POST'])
+def buy():
+    '''
+    gets email, password, amount
+    '''
+    # TODO Igor does this using the blockchain using the email, password, and amount
+
+@app.route('/api/account/user/purchase', methods=['POST'])
+def purchase():
+    '''
+    gets amount, description, email, password, publicHash
+    POV of sellers
+    if homeless person buying food, then amount is positive
+    if donator buying crypto, then amount if positive
+    '''
+    user_id = get_user_id(request)
+    # TODO Michael
+
+@app.route('/api/account/user/balance', methods=['GET'])
+def balance():
+    '''
+    gets publicHash as url param
+    '''
+    publicHash = request.args.get('publicHash', '')
+    if (publicHash == ''):
+        return message_response(400, 'The publicHash was not provided', 'application/json')
+
+    int balance = get_user_balance(publicHash)
+    js = { 'balance' : balance }
     return Response(json.dumps(js), mimetype='application/json')
 
 @app.teardown_appcontext
@@ -70,9 +131,26 @@ def query_db(query):
     cur.close()
     return rows
 
+def insert_db(query):
+    cur = get_db().cursor()
+    cur.execute(query)
+    get_db().commit()
+    insert_id = cur.lastrowid
+    cur.close()
+    return insert_id
+
 def message_response(status_code, message, mime_type):
     return Response("{'message':'" + message + "'}", status=status_code, mimetype=mime_type)
 
+def check_user_rows(rows):
+    if (len(rows) == 0):
+        return message_response(400, 'There are no users with these credentials', 'application/json')
+    if (len(rows) > 1):
+        return message_response(400, 'There is more than one user with these credentials', 'application/json')
+
+'''
+The request needs to contain and email and password encoded using json.
+'''
 def get_user_id(request):
     user_info = request.get_json()
     print(user_info)
@@ -85,11 +163,7 @@ def get_user_id(request):
         password
     )
     rows = query_db(query)
-
-    if (len(rows) == 0):
-        return message_response(400, 'There are no users with these credentials', 'application/json')
-    if (len(rows) > 1):
-        return message_response(400, 'There is more than one user with these credentials', 'application/json')
+    check_user_rows()
 
     user_id = rows[0]['id']
     return user_id
@@ -105,21 +179,19 @@ def get_user_data(user_id):
         user_id
     )
     rows = query_db(query)
-
-    if (len(rows) != 1):
-        return None
+    check_user_rows()
 
     user = rows[0]
 
     js = {
         'name' : user['name'],
         'qr' : user['publicHash'],
-        'balance' : get_user_balance(user_id)
+        'balance' : get_user_balance(user['publicHash'])
      }
     return js
 
-def get_user_balance(user_id):
-    # TODO
+def get_user_balance(public_hash):
+    # TODO Igor gets this from blockchain using the publicHash
     return 9000
 
 def get_user_transactions(user_id):
@@ -149,7 +221,7 @@ def get_user_transactions(user_id):
         ''')
     rows = query_db('''
     	select * from transactions
-            order by temporal asc;
+            order by temporal desc;
         ''')
     query_db('''drop table if exists transactions;''')
     query_db('''commit;''')
@@ -162,6 +234,29 @@ def get_user_transactions(user_id):
             'amount' : row['amount'],
             'description' : row['description'],
             'date' : row['temporal']
+        })
+
+    return js
+
+def get_user_donations(user_id):
+    '''
+    return a json dictionary encoding the:
+        date
+        amount
+        spender_id (homeless_id)
+    '''
+    query = 'select * from donations where donorId=\'%s\'' % (
+        user_id
+    )
+    rows = query_db(query)
+
+    js = { 'donations': [] }
+    donations = js['donations']
+    for row in rows:
+        donations.append({
+            'spenderId' : row['spenderId'],
+            'amount' : row['amount'],
+            'date' : row['temporal'],
         })
 
     return js
