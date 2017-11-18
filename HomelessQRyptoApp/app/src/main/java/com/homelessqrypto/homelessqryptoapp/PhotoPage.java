@@ -92,7 +92,9 @@ public class PhotoPage extends AppCompatActivity implements ZXingScannerView.Res
                 startActivity(intent);
             }
             else { // target == SALE_PAGE
-
+                Intent intent = new Intent(this, SalePage.class);
+                intent.putExtra("qr", rawResult.getText());    // send this to the activity it is needed in
+                startActivity(intent);
             }
         }
         else {

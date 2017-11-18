@@ -110,15 +110,10 @@ public class MainPage extends AppCompatActivity {
         startActivity(intent);
     }
 
-    // gets the images and attempts to decode the QR code
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-            // get image data, attempt decode on success, change view
-
-            // The new image should be at this location
-
-            // else TRY AGAIN
-
+    public void toSell(View view) {
+        Intent intent = new Intent(this, PhotoPage.class);
+        intent.putExtra(TARGET, SALE_PAGE);
+        startActivity(intent);
     }
 
     public void toDonateHistory(View view) {
