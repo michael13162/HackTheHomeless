@@ -1,8 +1,8 @@
 import json
 import sqlite3
 import os
+import hashlib
 from flask import Flask, g, render_template, request, Response
-from hashlib import blake2b
 
 template_dir = os.path.abspath('web')
 DATABASE = '../database/hackthehomeless.db'
@@ -17,10 +17,12 @@ def register():
     register_info = request.get_json()
     print(register_info)
 
+    s = hashlib.sha3_256()
+    s.update(str.encode(name))
+    publicHash = s.hexdigest()
     name = register_info['name']
     email = register_info['email']
     password = register_info['password']
-    publicHash = blake2b(str.encode(name)).hexdigest()
 
     cur = get_db().cursor()
     query = 'insert into users(name, email, password, publicHash, qr) values(\'%s\', \'%s\', \'%s\', \'%s\', \'%s\')' % (
