@@ -1,12 +1,16 @@
 import json
+import web3
 import sqlite3
 import os
 import hashlib
 from flask import Flask, g, render_template, request, Response
+from web3 import Web3, HTTPProvider
 
 template_dir = os.path.abspath('web')
 DATABASE = '../database/hackthehomeless.db'
 app = Flask(__name__, template_folder = template_dir)
+
+w3 = Web3(HTTPProvider('http://localhost:8545'))
 
 @app.route('/')
 def index():
@@ -20,10 +24,7 @@ def register():
     name = register_info['name']
     email = register_info['email']
     password = register_info['password']
-
-    s = hashlib.sha3_256()
-    s.update(str.encode(name))
-    publicHash = s.hexdigest()
+    publicHash = w3.sha3(text=name)
 
     query = 'insert into users(name, email, password, publicHash) values(\'%s\', \'%s\', \'%s\', \'%s\')' % (
         name,
@@ -230,8 +231,8 @@ def get_user_transactions(user_id):
     	select * from transactions
             order by temporal desc;
         ''')
-    query_db('''drop table if exists transactions;''')
-    query_db('''commit;''')
+    query_db('drop table if exists transactions;')
+    query_db('commit;')
 
     js = { 'transactions': [] }
     transactions = js['transactions']

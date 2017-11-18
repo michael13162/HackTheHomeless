@@ -11,11 +11,11 @@ app = Flask(__name__)
 w3 = Web3(HTTPProvider('http://localhost:8545'))
 
 abi_string = '''
-[{"constant":false,"inputs":[{"name":"sender","type":"address"},{"name":"receiver","type":"address"},{"name":"amount","type":"uint256"}],"name":"send","outputs":[{"name":"sufficient","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"balances","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"sender","type":"address"},{"name":"amount","type":"uint256"}],"name":"set","outputs":[{"name":"accepted","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[],"name":"getNum","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"addr","type":"address"}],"name":"getBalance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_from","type":"address"},{"indexed":true,"name":"_to","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Transfer","type":"event"}]
+[{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"balances","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"sender","type":"address"},{"name":"amount","type":"uint256"}],"name":"set","outputs":[{"name":"accepted","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[],"name":"getNum","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"sender","type":"address"},{"name":"receiver","type":"address"},{"name":"amount","type":"uint256"}],"name":"sendFromTo","outputs":[{"name":"sufficient","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"addr","type":"address"}],"name":"getBalance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"}]
 '''
 
 abi = json.loads(abi_string)
-HTH = w3.eth.contract(address='0x3971f3b0c0a73c2b656807f80655848f9c00fa15', abi=abi)
+HTH = w3.eth.contract(address='0x280e4c062addee30d06e3c81a47df8f1730a1df1', abi=abi)
 
 def getBalance(address):
     hash_address = address._normalize_32byte_address(address)
@@ -36,4 +36,4 @@ def processTransaction(sender, receiver, amount):
     receiver_hash_address = address._normalize_32byte_address(sender)
     receiver_normalized_address = address.to_normalized_address(receiver_hash_address)
 
-    return HTH.transact(transaction={"from":w3.eth.account[0],"gas" : 3000}).send(sender_normalized_address, receiver_normalized_address, amount)
+    return HTH.transact(transaction={"from":w3.eth.account[0],"gas" : 3000}).sendFromTo(sender_normalized_address, receiver_normalized_address, amount)
