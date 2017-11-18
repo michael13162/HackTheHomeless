@@ -3,6 +3,7 @@ import web3
 import sqlite3
 import os
 import hashlib
+import blockchain
 from flask import Flask, g, render_template, request, Response
 from web3 import Web3, HTTPProvider
 
@@ -63,10 +64,37 @@ def donations():
 @app.route('/api/account/user/purchases', methods=['GET'])
 def purchases():
     '''
-    can get publicHash OR id as url params
-    return date, description, amount, id
+    can get publicHash OR spenderId as url params
+    return date, description, amount, spenderId
     '''
-    # TODO Michael
+    publicHash = request.args.get('publicHash', '')
+    spenderId = request.args.get('spenderId', '')
+    if (publicHash == '' and spenderId == ''):
+        return message_response(400, 'The query string does not have a publicHash or a spenderId', 'application/json')
+
+    if (spenderId == ''):
+        query = 'select * from users where publicHash=\'%s\'' % (publicHash)
+        rows = query_db(query)
+        check_user_rows(rows)
+        spenderId = rows[0]['id']
+
+    query = '''
+            select * from purchases where spenderId=\'%s\'
+                order by temporal desc;
+            ''' % (spenderId)
+    rows = query_db(query)
+
+    js = { 'purchases' : [] }
+    purchases = js['purchases']
+    for row in rows:
+        purchases.append({
+            'spenderId' : spenderId,
+            'amount' : row['amount'],
+            'description' row['description'],
+            'date' : row['temporal']
+        })
+
+    return js
 
 @app.route('/api/account/user/donate', methods=['POST'])
 def donate():
@@ -97,6 +125,8 @@ def buy():
     publicHash = user_data['qr']
     amount = request.get_json()['amount']
     # TODO Igor does this using the blockchain using the publicHash and amount
+    balance = blockchain.getBalance(publicHash)
+    blockchain.setBalance(publicHash, balance + amount)
     return message_response(200, 'The purchase of HTH was successful!', 'application/json')
 
 @app.route('/api/account/user/purchase', methods=['POST'])
@@ -105,7 +135,6 @@ def purchase():
     gets amount, description, email, password, publicHash
     POV of sellers
     if homeless person buying food, then amount is positive
-    if donator buying crypto, then amount if positive
     '''
     user_id = get_user_id(request)
     # TODO Michael
@@ -204,7 +233,8 @@ def get_user_data(user_id):
 
 def get_user_balance(public_hash):
     # TODO Igor gets this from blockchain using the publicHash
-    return 9000
+    balance = blockchain.getBalance(public_hash)
+    return balance
 
 def get_user_transactions(user_id):
     '''
@@ -261,18 +291,23 @@ def get_user_donations(user_id):
     return a json dictionary encoding the:
         date
         amount
+        name (homeless_name)
         spender_id (homeless_id)
     '''
-    query = 'select * from donations where donorId=\'%s\'' % (
-        user_id
-    )
+    query = '''
+        select * from donations where donorId=\'%s\'
+            order by temporal desc;
+    ''' % (user_id)
     rows = query_db(query)
 
     js = { 'donations': [] }
     donations = js['donations']
     for row in rows:
+        spenderId = row['spenderId']
+        name = get_user_data(spenderId)['name']
         donations.append({
-            'spenderId' : row['spenderId'],
+            'spenderId' : spenderId,
+            'name' : name,
             'amount' : row['amount'],
             'date' : row['temporal'],
         })

@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.util.UUID;
 
 
+
 public class MainPage extends AppCompatActivity {
 
     public static final int QR_HISTORY_PAGE = 0;
