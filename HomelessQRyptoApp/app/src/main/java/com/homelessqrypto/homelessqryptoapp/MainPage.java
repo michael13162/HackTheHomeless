@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.FileProvider;
@@ -16,6 +17,16 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -53,6 +64,22 @@ public class MainPage extends AppCompatActivity {
                 writer.write(GlobalApplicationProperties.name);
                 writer.write(GlobalApplicationProperties.email);
                 writer.write(GlobalApplicationProperties.password);
+
+                RequestQueue queue = Volley.newRequestQueue(this);
+                String url = GlobalApplicationProperties.serverUrl + "/api/account/register";
+                JSONObject jsonObject = new JSONObject("{\"name\":\"" + GlobalApplicationProperties.name + "\", \"email\":\"" + GlobalApplicationProperties.email + "\", \"password\":\"" + GlobalApplicationProperties.password +"\"}");
+                JsonObjectRequest request = new JsonObjectRequest(url, jsonObject,
+                        new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject response) {
+                            }
+                        },
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                            }
+                        });
+                queue.add(request);
             } catch (Exception e) { }
         }
     }
