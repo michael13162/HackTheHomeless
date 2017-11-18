@@ -50,6 +50,46 @@ def transactions():
     js = get_user_transactions(user_id)
     return Response(json.dumps(js), mimetype='application/json')
 
+@app.route('/api/account/user/donations', methods=['POST'])
+def donations():
+    user_id = get_user_id(request)
+    js = get_user_donations(user_id)
+    return Response(json.dumps(js), mimetype='application/json')
+
+@app.route('/api/account/user/purchases', methods=['GET'])
+def purchases():
+    '''
+    can get qr or id
+    return date, description, amount, id
+    '''
+    # TODO
+
+@app.route('/api/account/user/donate', methods=['POST'])
+def donate():
+    '''
+    gets spender_id, email, password
+    '''
+    user_id = get_user_id(request)
+    # TODO
+
+@app.route('/api/account/user/purchase', methods=['POST'])
+def purchase():
+    '''
+    gets amount, description, email, password, publicHash
+    POV of sellers
+    if homeless person buying food, then amount is positive
+    if donator buying crypto, then amount if positive
+    '''
+    user_id = get_user_id(request)
+    # TODO
+
+@app.route('/api/account/user/balance', methods=['GET'])
+def balance():
+    '''
+    gets publicHash
+    '''
+    # TODO
+
 @app.teardown_appcontext
 def close_connection(exception):
     db = getattr(g, '_database', None)
@@ -165,6 +205,16 @@ def get_user_transactions(user_id):
         })
 
     return js
+
+def get_user_donations():
+    '''
+    return a json dictionary encoding the:
+        date
+        amount
+        spender_id (homeless_id)
+    '''
+    # TODO
+
 
 if __name__ == '__main__':
     app.run()
