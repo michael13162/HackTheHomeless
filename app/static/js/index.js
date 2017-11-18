@@ -99,6 +99,7 @@ $('#register-button').on('click', function(e) {
       }
       $.ajax({
         type: 'POST',
+        headers: {"Access-Control-Allow-Origin": "*"},
         url: server_url + '/api/account/user/transactions',
         contentType: 'application/json',
         data: JSON.stringify(requestObject),
@@ -172,6 +173,7 @@ $('#login-button').on('click', function(e) {
       }
       $.ajax({
         type: 'POST',
+        headers: {"Access-Control-Allow-Origin": "*"},
         url: server_url + '/api/account/user/transactions',
         contentType: 'application/json',
         data: JSON.stringify(requestObject),
