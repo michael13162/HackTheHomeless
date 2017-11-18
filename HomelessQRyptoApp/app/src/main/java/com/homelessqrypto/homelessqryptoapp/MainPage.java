@@ -36,7 +36,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.UUID;
 
+
 public class MainPage extends AppCompatActivity {
+
+    public static final int QR_HISTORY_PAGE = 0;
+    public static final int SALE_PAGE = 1;
+    public static final String QR_STRING = "QR_string";
+    public static final String TARGET = "target";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,70 +100,24 @@ public class MainPage extends AppCompatActivity {
 
     public void toTakeDonate(View view) {
         // just go to camera
-//        allowTakePhoto();
         // if just to camera, have a message about good photo
         // While processing the image, which screen to go to?
         // if fail, request user try again in a message, screen back to camera
+
+        Intent intent = new Intent(this, PhotoPage.class);
+        intent.putExtra(TARGET, QR_HISTORY_PAGE);
+        startActivity(intent);
     }
 
-    static final int SINGLE_IMAGE_REQUEST = 1;
-/*
-    private void allowTakePhoto() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        // Ensure that there's a camera activity to handle the intent
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            // Create the File where the photo should go
-            File photoFile = null;
-            try {
-                photoFile = createImageFile();
-            } catch (IOException ex) {
-                // Error occurred while creating the File
-         // Give message box  -- unable to take picture at this time
-            }
-            // Continue only if the File was successfully created
-            if (photoFile != null) {
-                Uri photoURI = FileProvider.getUriForFile(this,
-                        "com.example.android.fileprovider",
-                        photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                startActivityForResult(takePictureIntent, SINGLE_IMAGE_REQUEST);
-            }
-        }
-    }
-*/
     // gets the images and attempts to decode the QR code
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == SINGLE_IMAGE_REQUEST && resultCode == RESULT_OK) {
             // get image data, attempt decode on success, change view
 
             // The new image should be at this location
 
-
-
-
-            File file = new File(photoPath);
-            if (file != null) {
-                file.delete();
-            }
             // else TRY AGAIN
-        }
-    }
 
-    String PHOTONAME = "QRcodeImage";
-    String photoPath;
-
-    private File createImageFile() throws IOException {
-        // Create an image file
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(
-                PHOTONAME,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
-        );
-
-        photoPath = image.getAbsolutePath();
-        return image;
     }
 
     public void toDonateHistory(View view) {
