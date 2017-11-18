@@ -113,7 +113,7 @@ def get_user_data(user_id):
 
     js = {
         'name' : user['name'],
-        'qr' : user['qr'],
+        'qr' : user['publicHash'],
         'balance' : get_user_balance(user_id)
      }
     return js
@@ -130,38 +130,37 @@ def get_user_transactions(user_id):
         description
         date
     '''
-    query = '''
-        begin transaction;
-
-        drop table if exists transactions;
-
-        create table transactions (
+    query_db('begin transaction;')
+    query_db('''
+        create table if not exists transactions (
             type varchar(255),
             amount float,
             description varchar(255),
             temporal timestamp
         );
-
-        insert into transactions
+    	''')
+    query_db('''
+    	insert into transactions
             select 'Donation',amount,'Donation',temporal from donations;
-
-        insert into transactions
+    	''')
+    query_db('''        
+    	insert into transactions
             select 'Purchase',amount,description,temporal from purchases;
-
-        select * from transactions
+        ''')
+    rows = query_db('''
+    	select * from transactions
             order by temporal asc;
-
-        commit;
-    '''
-    rows = query_db(query)
+        ''')
+    query_db('''drop table if exists transactions;''')
+    query_db('''commit''')
 
     js = { 'transactions': [] }
     transactions = js['transactions']
     for row in rows:
         transactions.append({
-            'type' : row['type']
-            'amount' : row['amount']
-            'description' : row['description']
+            'type' : row['type'],
+            'amount' : row['amount'],
+            'description' : row['description'],
             'date' : row['temporal']
         })
 

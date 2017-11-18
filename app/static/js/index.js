@@ -104,7 +104,7 @@ $('#register-button').on('click', function(e) {
         data: JSON.stringify(requestObject),
         success: function(data) {
           $transactionSpinner.hide();
-          $transaction-history-table.show();
+          $transactionTable.show();
           data.transactions.forEach(function(element) {
             var sign;
             var colorClass;
@@ -116,7 +116,7 @@ $('#register-button').on('click', function(e) {
               colorClass = 'donation-row';
             }
             var markup = "<tr class=" + colorClass + "><td>" + element.date + "</td><td>" + element.type + "</td><td>" + element.description + "</td><td>$" + sign + element.amount + "</td></tr>";
-            $transaction-history-table.append(markup);
+            $transactionTable.append(markup);
           });
         },
         error: function(data) {
@@ -177,7 +177,7 @@ $('#login-button').on('click', function(e) {
         data: JSON.stringify(requestObject),
         success: function(data) {
           $transactionSpinner.hide();
-          $transaction-history-table.show();
+          $transactionTable.show();
           data.transactions.forEach(function(element) {
             var sign;
             var colorClass;
@@ -188,8 +188,8 @@ $('#login-button').on('click', function(e) {
               sign = '+';
               colorClass = 'donation-row';
             }
-            var markup = "<tr class=" + colorClass + "><td>" + element.date + "</td><td>" + element.type + "</td><td>" + element.description + "</td><td>$" + sign + element.amount + "</td></tr>";
-            $transaction-history-table.append(markup);
+            var markup = "<tr class=" + colorClass + "><td>" + element.date + "</td><td>" + element.type + "</td><td>" + element.description + "</td><td>" + sign + "$" + element.amount + "</td></tr>";
+            $transactionTable.append(markup);
           });
         },
         error: function(data) {

@@ -30,6 +30,10 @@ a:hover {
   box-shadow: 0 4px 10px 4px rgba(19, 35, 47, 0.3);
 }
 
+#main-page.form {
+  max-width: 1000px;
+}
+
 .tab-group {
   list-style: none;
   padding: 0;
@@ -170,6 +174,10 @@ textarea {
 .button-block {
   display: block;
   width: 100%;
+}
+
+.qr {
+  text-align: center;
 }
 
 .well {
