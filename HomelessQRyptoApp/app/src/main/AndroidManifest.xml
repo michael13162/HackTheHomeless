@@ -10,8 +10,8 @@
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="18" />
-    <uses-permission android:name="android.permission.READ_CONTACTS"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -43,7 +43,8 @@
         <activity android:name=".PurchasePage" />
         <activity android:name=".DonationHistoryPage" />
         <activity android:name=".PhotoPage" />
-        <activity android:name=".QRHistoryPage"></activity>
+        <activity android:name=".QRHistoryPage" />
+        <activity android:name=".FullScannerActivity"></activity>
     </application>
 
 </manifest>

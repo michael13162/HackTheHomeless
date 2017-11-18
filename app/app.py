@@ -3,6 +3,7 @@ import web3
 import sqlite3
 import os
 import hashlib
+import blockchain
 from flask import Flask, g, render_template, request, Response
 from web3 import Web3, HTTPProvider
 
@@ -119,6 +120,8 @@ def buy():
     publicHash = user_data['qr']
     amount = request.get_json()['amount']
     # TODO Igor does this using the blockchain using the publicHash and amount
+    balance = blockchain.getBalance(publicHash)
+    blockchain.setBalance(publicHash, balance + amount)
     return message_response(200, 'The purchase of HTH was successful!', 'application/json')
 
 @app.route('/api/account/user/purchase', methods=['POST'])
@@ -225,7 +228,8 @@ def get_user_data(user_id):
 
 def get_user_balance(public_hash):
     # TODO Igor gets this from blockchain using the publicHash
-    return 9000
+    balance = blockchain.getBalance(public_hash)
+    return balance
 
 def get_user_transactions(user_id):
     '''
