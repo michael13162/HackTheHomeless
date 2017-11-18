@@ -85,7 +85,11 @@ def buy():
     '''
     gets email, password, amount
     '''
-    # TODO Igor does this using the blockchain using the email, password, and amount
+    user_id = get_user_id(request)
+    user_data = get_user_data(user_id)
+    publicHash = user_data['qr']
+    # TODO Igor does this using the blockchain using the publicHash and amount
+    return message_response(200, 'The purchase of HTH was successful!', 'application/json')
 
 @app.route('/api/account/user/purchase', methods=['POST'])
 def purchase():
