@@ -1,10 +1,12 @@
 package com.homelessqrypto.homelessqryptoapp;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -15,8 +17,13 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.util.UUID;
 
 public class MainPage extends AppCompatActivity {
 
@@ -24,6 +31,30 @@ public class MainPage extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_page);
+
+        File file = new File(this.getFilesDir(), "user_info.txt");
+        if (file.exists() && file.canRead()) {
+            try {
+                BufferedReader reader = new BufferedReader(new FileReader(file));
+                GlobalApplicationProperties.name = reader.readLine();
+                GlobalApplicationProperties.email = reader.readLine();
+                GlobalApplicationProperties.password = reader.readLine();
+            } catch (Exception e) { }
+        } else {
+            try {
+                FileWriter writer = new FileWriter(file);
+                Cursor c = getApplication().getContentResolver().query(ContactsContract.Profile.CONTENT_URI, null, null, null, null);
+                c.moveToFirst();
+                String name = c.getString(c.getColumnIndex("display_name"));
+                c.close();
+                GlobalApplicationProperties.name = name;
+                GlobalApplicationProperties.email = name + "@gmail.com";
+                GlobalApplicationProperties.password = UUID.randomUUID().toString();
+                writer.write(GlobalApplicationProperties.name);
+                writer.write(GlobalApplicationProperties.email);
+                writer.write(GlobalApplicationProperties.password);
+            } catch (Exception e) { }
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////

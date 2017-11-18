@@ -149,7 +149,7 @@ def get_user_transactions(user_id):
         ''')
     rows = query_db('''
     	select * from transactions
-            order by temporal asc;
+            order by temporal desc;
         ''')
     query_db('''drop table if exists transactions;''')
     query_db('''commit;''')
