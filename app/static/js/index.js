@@ -83,7 +83,46 @@ $('#register-button').on('click', function(e) {
       $popup.hide();
       $mainPage.show();
 
+      $qrDisplay.qrcode({
+        width: 512,
+        height: 512,
+        text: data.qr
+      }).show();
+      $informationField.show();
+      $nameDiv.html('Name: ' + data.name).show();
+      $balanceDiv.html('Balance: $' + data.balance).show();
+      $transactionSpinner.show();
 
+      requestObject = {
+        email: emailInput,
+        password: passwordInput
+      }
+      $.ajax({
+        type: 'POST',
+        url: server_url + '/api/account/user/transactions',
+        contentType: 'application/json',
+        data: JSON.stringify(requestObject),
+        success: function(data) {
+          $transactionSpinner.hide();
+          $transaction-history-table.show();
+          data.transactions.forEach(function(element) {
+            var sign;
+            var colorClass;
+            if (element.type === 'Purchase') {
+              sign = '-';
+              colorClass = 'purchase-row';
+            } else {
+              sign = '+';
+              colorClass = 'donation-row';
+            }
+            var markup = "<tr class=" + colorClass + "><td>" + element.date + "</td><td>" + element.type + "</td><td>" + element.description + "</td><td>$" + sign + element.amount + "</td></tr>";
+            $transaction-history-table.append(markup);
+          });
+        },
+        error: function(data) {
+          $transactionSpinner.hide();
+        }
+      });
     },
     error: function(data) {
       $popupText.text('Error Occured in Registration')
@@ -120,12 +159,43 @@ $('#login-button').on('click', function(e) {
       $qrDisplay.qrcode({
         width: 512,
         height: 512,
-        text: "loooooolol"
+        text: data.qr
       }).show();
       $informationField.show();
-      $nameDiv.html('Name: William Li').show();
-      $balanceDiv.html('Balance: $500').show();
+      $nameDiv.html('Name: ' + data.name).show();
+      $balanceDiv.html('Balance: $' + data.balance).show();
       $transactionSpinner.show();
+
+      requestObject = {
+        email: email,
+        password: password
+      }
+      $.ajax({
+        type: 'POST',
+        url: server_url + '/api/account/user/transactions',
+        contentType: 'application/json',
+        data: JSON.stringify(requestObject),
+        success: function(data) {
+          $transactionSpinner.hide();
+          $transaction-history-table.show();
+          data.transactions.forEach(function(element) {
+            var sign;
+            var colorClass;
+            if (element.type === 'Purchase') {
+              sign = '-';
+              colorClass = 'purchase-row';
+            } else {
+              sign = '+';
+              colorClass = 'donation-row';
+            }
+            var markup = "<tr class=" + colorClass + "><td>" + element.date + "</td><td>" + element.type + "</td><td>" + element.description + "</td><td>$" + sign + element.amount + "</td></tr>";
+            $transaction-history-table.append(markup);
+          });
+        },
+        error: function(data) {
+          $transactionSpinner.hide();
+        }
+      });
     },
     error: function(data) {
       $popupText.text('Could not find account')

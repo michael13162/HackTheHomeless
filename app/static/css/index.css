@@ -173,7 +173,7 @@ textarea {
 }
 
 .well {
-  font-size: 20px;
+  font-size: 15px;
   text-decoration: none;
   color: #ffffff;
   margin-top: 20px;
@@ -302,6 +302,14 @@ tr {
   font-weight:normal;
   text-shadow: 0 1px 1px rgba(256, 256, 256, 0.1);
 }
+
+tr.purchase-row {
+  color: #ff6347;
+}
+
+tr.donation-row {
+  color: #3cb371;
+} 
  
 tr:hover td {
   background:#4E5066;
