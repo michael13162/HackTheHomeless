@@ -1,12 +1,16 @@
 import json
+import web3
 import sqlite3
 import os
 import hashlib
 from flask import Flask, g, render_template, request, Response
+from web3 import Web3, HTTPProvider
 
 template_dir = os.path.abspath('web')
 DATABASE = '../database/hackthehomeless.db'
 app = Flask(__name__, template_folder = template_dir)
+
+w3 = Web3(HTTPProvider('http://localhost:8545'))
 
 @app.route('/')
 def index():
@@ -20,10 +24,7 @@ def register():
     name = register_info['name']
     email = register_info['email']
     password = register_info['password']
-
-    s = hashlib.sha3_256()
-    s.update(str.encode(name))
-    publicHash = s.hexdigest()
+    publicHash = w3.sha3(text=name)
 
     query = 'insert into users(name, email, password, publicHash) values(\'%s\', \'%s\', \'%s\', \'%s\')' % (
         name,
@@ -201,7 +202,6 @@ def get_user_balance(public_hash):
     return 9000
 
 def get_user_transactions(user_id):
-	#TODO: filter by user_id
     '''
     returns a json dictionary encoding the:
         type (Donation|Purchase)
@@ -209,8 +209,9 @@ def get_user_transactions(user_id):
         description
         date
     '''
-    query_db('begin transaction;')
-    query_db('''
+    cur = get_db().cursor()
+    cur.execute('begin transaction;')
+    cur.execute('''
         create table if not exists transactions (
             type varchar(255),
             amount float,
@@ -218,20 +219,25 @@ def get_user_transactions(user_id):
             temporal timestamp
         );
     	''')
-    query_db('''
+    cur.execute('''
     	insert into transactions
-            select 'Donation',amount,'Donation',temporal from donations;
-    	''')
-    query_db('''
+            select 'Donation',amount,'Donation',temporal from donations
+                where spenderId=\'%s\';
+    	''' % (user_id))
+    cur.execute('''
     	insert into transactions
-            select 'Purchase',amount,description,temporal from purchases;
-        ''')
-    rows = query_db('''
+            select 'Purchase',amount,description,temporal from purchases
+                where spenderId=\'%s\';
+        ''' % (user_id))
+    cur.execute('''
     	select * from transactions
             order by temporal desc;
         ''')
-    query_db('''drop table if exists transactions;''')
-    query_db('''commit;''')
+    rows = cur.fetchall()
+    cur.execute('drop table if exists transactions;')
+    get_db().commit()
+
+    cur.close()
 
     js = { 'transactions': [] }
     transactions = js['transactions']
