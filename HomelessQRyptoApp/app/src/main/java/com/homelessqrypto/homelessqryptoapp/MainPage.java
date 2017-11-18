@@ -17,6 +17,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -49,6 +50,9 @@ public class MainPage extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_page);
+
+        ImageView imageView = (ImageView) findViewById(R.id.main_page_image);
+        imageView.setImageResource(R.drawable.hthlogo);
 
         File file = new File(this.getFilesDir(), "user_info.txt");
         if (file.exists() && file.canRead()) {

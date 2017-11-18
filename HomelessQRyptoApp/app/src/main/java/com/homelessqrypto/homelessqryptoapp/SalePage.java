@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
@@ -73,6 +74,8 @@ public class SalePage extends AppCompatActivity {
                     String description = descriptionText.getText().toString();
 
                     JSONObject jsonObject = new JSONObject("{\"amount\":" + amount + ",\"description\":\"" + description + "\",\"email\":\"" + GlobalApplicationProperties.email + "\", \"password\":\"" + GlobalApplicationProperties.password + "\",\"publicHash\":\"" + qrMessage + "\"}");
+                    Log.e("asd", url);
+                    Log.e("qfe", jsonObject.toString());
                     JsonObjectRequest request = new JsonObjectRequest(url, jsonObject,
                             new Response.Listener<JSONObject>() {
                                 @Override
