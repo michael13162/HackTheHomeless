@@ -15,7 +15,7 @@ abi_string = '''
 '''
 
 abi = json.loads(abi_string)
-HTH = w3.eth.contract(address='0x280e4c062addee30d06e3c81a47df8f1730a1df1', abi=abi)
+HTH = w3.eth.contract(address='0xc70e4aebc6eba0096888e9c57ef42bd4211ab6f5', abi=abi)
 
 def getBalance(addr):
     hash_address = address._normalize_32byte_address(addr)
