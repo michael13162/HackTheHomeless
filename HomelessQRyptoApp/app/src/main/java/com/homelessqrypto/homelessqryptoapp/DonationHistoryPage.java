@@ -84,7 +84,7 @@ public class DonationHistoryPage extends AppCompatActivity {
                                                 startActivity(intent);
                                             } catch (JSONException e) { }
                                         }
-                                    }); // TODO
+                                    });
                                     addedLayout.addView(seeMoreButton);
 
                                     donationHistoryLayout.addView(addedLayout);

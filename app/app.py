@@ -44,6 +44,11 @@ def user():
     js = get_user_data(user_id)
     return Response(json.dumps(js), mimetype='application/json')
 
+@app.route('/api/account/user/<int:user_id>', methods=['GET'])
+def user_by_id():
+	js = get_user_data(user_id)
+	return Response(json.dumps(js), mimetype='application/json')
+
 @app.route('/api/account/user/transactions', methods=['POST'])
 def transactions():
     user_id = get_user_id(request)
