@@ -1,20 +1,15 @@
 import json
 import sqlite3
-from flask import Flask
-from flask import request
-from flask import g
+import os
+from flask import Flask, g, render_template, request, Response
 
-app = Flask(__name__)
-
+template_dir = os.path.abspath('web')
 DATABASE = '../database/hackthehomeless.db'
+app = Flask(__name__, template_folder = template_dir)
 
 @app.route('/')
-def hello():
-    return "Hello World!"
-
-@app.route('/<name>')
-def hello_name(name):
-    return "Hello {}!".format(name)
+def index():
+    return render_template('index.html')
 
 @app.route('/api/account/register', methods=['POST'])
 def register():
@@ -108,7 +103,7 @@ def get_user_data(user_id):
     js = {'name' : user['name'],
           'qr' : user['qr'],
           'balance' : get_user_balance(user_id)
-         })
+         }
     return js
 
 def get_user_balance(user_id):
