@@ -17,23 +17,40 @@ abi_string = '''
 abi = json.loads(abi_string)
 HTH = w3.eth.contract(address='0x280e4c062addee30d06e3c81a47df8f1730a1df1', abi=abi)
 
-def getBalance(address):
-    hash_address = address._normalize_32byte_address(address)
+def getBalance(addr):
+    hash_address = address._normalize_32byte_address(addr)
     normalized_address = address.to_normalized_address(hash_address)
 
     return int(HTH.call().getBalance(normalized_address))
 
-def setBalance(address, amount):
-    hash_address = address._normalize_32byte_address(address)
+def setBalance(addr, amount):
+    hash_address = address._normalize_32byte_address(addr)
     normalized_address = address.to_normalized_address(hash_address)
 
-    HTH.transact(transaction={"from":w3.eth.accounts[0],"gas" : 3000}).set(normalized_address, amount)
+    HTH.transact(transaction={"from":w3.eth.accounts[0],"gas" : 3000000}).set(normalized_address, amount)
 
 def processTransaction(sender, receiver, amount):
     sender_hash_address = address._normalize_32byte_address(sender)
     sender_normalized_address = address.to_normalized_address(sender_hash_address)
 
-    receiver_hash_address = address._normalize_32byte_address(sender)
+    receiver_hash_address = address._normalize_32byte_address(receiver)
     receiver_normalized_address = address.to_normalized_address(receiver_hash_address)
 
-    return HTH.transact(transaction={"from":w3.eth.account[0],"gas" : 3000}).sendFromTo(sender_normalized_address, receiver_normalized_address, amount)
+    HTH.transact(transaction={"from":w3.eth.accounts[0],"gas" : 3000000}).sendFromTo(sender_normalized_address, receiver_normalized_address, amount)
+
+if __name__ == '__main__':
+    name = 'example'
+    addr = w3.sha3(text=name)
+    
+    setBalance(addr, 1000)
+    print(name + ' ' + str(getBalance(addr)))
+
+    receiver_name = 'receiver'
+    receiver_addr = w3.sha3(text=receiver_name)
+
+    setBalance(receiver_addr, 1900)
+    print(receiver_name + ' ' + str(getBalance(receiver_addr)))
+
+    processTransaction(addr, receiver_addr, 800)
+    print(name + ': ' + str(getBalance(addr)))
+    print(receiver_name + ': ' + str(getBalance(receiver_addr)))
