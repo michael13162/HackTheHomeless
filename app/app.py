@@ -17,20 +17,21 @@ def register():
     register_info = request.get_json()
     print(register_info)
 
-    s = hashlib.sha3_256()
-    s.update(str.encode(name))
-    publicHash = s.hexdigest()
     name = register_info['name']
     email = register_info['email']
     password = register_info['password']
 
-    query = 'insert into users(name, email, password, publicHash, qr) values(\'%s\', \'%s\', \'%s\', \'%s\', \'%s\')' % (
+    s = hashlib.sha3_256()
+    s.update(str.encode(name))
+    publicHash = s.hexdigest()
+
+    query = 'insert into users(name, email, password, publicHash) values(\'%s\', \'%s\', \'%s\', \'%s\')' % (
         name,
         email,
         password,
         publicHash
     )
-    user_id = insert_db(query):
+    user_id = insert_db(query)
 
     js = get_user_data(user_id)
     return Response(json.dumps(js), mimetype='application/json')
@@ -76,7 +77,7 @@ def donate():
         spender_id,
         amount
     )
-    insert_id = insert_db(query):
+    insert_id = insert_db(query)
     print(insert_id)
     return message_response(200, 'The donation was successful!', 'application/json')
 
@@ -112,7 +113,7 @@ def balance():
     if (publicHash == ''):
         return message_response(400, 'The publicHash was not provided', 'application/json')
 
-    int balance = get_user_balance(publicHash)
+    balance = get_user_balance(publicHash)
     js = { 'balance' : balance }
     return Response(json.dumps(js), mimetype='application/json')
 
@@ -168,7 +169,7 @@ def get_user_id(request):
         password
     )
     rows = query_db(query)
-    check_user_rows()
+    check_user_rows(rows)
 
     user_id = rows[0]['id']
     return user_id
@@ -184,7 +185,7 @@ def get_user_data(user_id):
         user_id
     )
     rows = query_db(query)
-    check_user_rows()
+    check_user_rows(rows)
 
     user = rows[0]
 
@@ -200,6 +201,7 @@ def get_user_balance(public_hash):
     return 9000
 
 def get_user_transactions(user_id):
+	#TODO: filter by user_id
     '''
     returns a json dictionary encoding the:
         type (Donation|Purchase)

@@ -1,11 +1,13 @@
 package com.homelessqrypto.homelessqryptoapp;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.GradientDrawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutCompat;
 import android.view.Gravity;
+import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -40,7 +42,7 @@ public class DonationHistoryPage extends AppCompatActivity {
                             try {
                                 JSONArray donations = response.getJSONArray("donations");
                                 for (int i = 0; i < donations.length(); i++) {
-                                    JSONObject donation = donations.getJSONObject(i);
+                                    final JSONObject donation = donations.getJSONObject(i);
                                     LinearLayout donationHistoryLayout = (LinearLayout) findViewById(R.id.donation_history_layout);
                                     LinearLayout addedLayout = new LinearLayout(me);
                                     addedLayout.setOrientation(LinearLayout.HORIZONTAL);
@@ -73,9 +75,18 @@ public class DonationHistoryPage extends AppCompatActivity {
                                     seeMoreButton.setGravity(Gravity.CENTER);
                                     LinearLayout.LayoutParams buttonLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
                                     seeMoreButton.setLayoutParams(buttonLayoutParams);
-                                    seeMoreButton.setOnClickListener(null); // TODO
+                                    seeMoreButton.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            try {
+                                                Intent intent = new Intent(me, QRHistoryPage.class);
+                                                intent.putExtra("id", donation.get("id").toString());
+                                                startActivity(intent);
+                                            } catch (JSONException e) { }
+                                        }
+                                    }); // TODO
                                     addedLayout.addView(seeMoreButton);
-                                    
+
                                     donationHistoryLayout.addView(addedLayout);
                                 }
                             } catch (JSONException e) { }
