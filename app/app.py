@@ -58,18 +58,37 @@ def donations():
 @app.route('/api/account/user/purchases', methods=['GET'])
 def purchases():
     '''
-    can get publicHash OR id as url params
-    return date, description, amount, id
+    can get publicHash OR spenderId as url params
+    return date, description, amount, spenderId
     '''
     publicHash = request.args.get('publicHash', '')
-    userId = request.args.get('userId', '')
-    if (publicHash == '' and userId == ''):
-        return message_response(400, 'The query string does not have a publicHash or a userId', 'application/json')
+    spenderId = request.args.get('spenderId', '')
+    if (publicHash == '' and spenderId == ''):
+        return message_response(400, 'The query string does not have a publicHash or a spenderId', 'application/json')
 
-    query = ''
-    if (publicHash != ''):
-        query = 'select * from purchases where publicHash=\'%s\'' % (publicHash)
-    # TODO Michael
+    if (spenderId == ''):
+        query = 'select * from users where publicHash=\'%s\'' % (publicHash)
+        rows = query_db(query)
+        check_user_rows(rows)
+        spenderId = rows[0]['id']
+
+    query = '''
+            select * from purchases where spenderId=\'%s\'
+                order by temporal desc;
+            ''' % (spenderId)
+    rows = query_db(query)
+
+    js = { 'purchases' : [] }
+    purchases = js['purchases']
+    for row in rows:
+        purchases.append({
+            'spenderId' : spenderId,
+            'amount' : row['amount'],
+            'description' row['description'],
+            'date' : row['temporal']
+        })
+
+    return js
 
 @app.route('/api/account/user/donate', methods=['POST'])
 def donate():
@@ -266,9 +285,10 @@ def get_user_donations(user_id):
         name (homeless_name)
         spender_id (homeless_id)
     '''
-    query = 'select * from donations where donorId=\'%s\'' % (
-        user_id
-    )
+    query = '''
+        select * from donations where donorId=\'%s\'
+            order by temporal desc;
+    ''' % (user_id)
     rows = query_db(query)
 
     js = { 'donations': [] }
