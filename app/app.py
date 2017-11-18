@@ -106,6 +106,8 @@ def donate():
     if amount > get_user_data(user_id)['balance']:
         return message_response(400, 'The user does not have enough balance for this donation amount', 'application/json')
 
+    blockchain.processTransaction(get_user_data(user_id)['publicHash'], get_user_data(spender_id)['publicHash'], amount)
+
     query = 'insert into donations(donorId, spenderId, amount, temporal) values(\'%s\', \'%s\', \'%s\', datetime())' % (
         user_id,
         spender_id,
@@ -144,6 +146,8 @@ def purchase():
 
     if amount > get_user_data(spenderId)['balance']:
         return message_response(400, 'The spender does not have enough balance for this purchase amount', 'application/json')
+
+    blockchain.processTransaction(get_user_data(spenderId)['publicHash'], get_user_data(user_id)['publicHash'], amount)
 
     query = 'insert into purchases(spenderId, amount, description, temporal) values(\'%s\', \'%s\', \'%s\', datetime())' % (
         spender_id,
