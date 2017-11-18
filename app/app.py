@@ -28,7 +28,7 @@ def register():
     qr = 'TODO'
 
     cur = get_db().cursor()
-    query = 'insert into users(id, name, email, password, publicHash, qr) values(\'%s\', \'%s\', \'%s\', \'%s\', \'%s\')' % (
+    query = 'insert into users(name, email, password, publicHash, qr) values(\'%s\', \'%s\', \'%s\', \'%s\', \'%s\')' % (
         name,
         email,
         password,
@@ -58,11 +58,15 @@ def user():
         password
     )
     cur.execute(query)
-    r = cur.fetchall()
-    user_id = cur.lastrowid
+    rows = cur.fetchall()
     cur.close()
 
-    js = get_user_data(user_id)
+    if (len(rows) == 0):
+        return message_response(400, 'There are no users with these credentials', 'application/json')
+    if (len(rows) > 1):
+        return message_response(400, 'There is more than one user with these credentials', 'application/json')
+
+    js = get_user_data(rows[0]['id'])
     return Response(json.dumps(js), mimetype='application/json')
 
 @app.teardown_appcontext
@@ -78,6 +82,9 @@ def get_db():
     db.row_factory = sqlite3.Row
     return db
 
+def message_response(status_code, message, mime_type):
+    return Response("{'message':'" + message + "'}", status=status_code, mimetype=mime_type)
+
 def get_user_data(user_id):
     '''
     returns a json dictionary encoding the:
@@ -85,9 +92,27 @@ def get_user_data(user_id):
         qr
         balance
     '''
-    js = []
-    js.append('Yo Will')
+    cur = get_db().cursor()
+    query = 'select * from users where id=\'%s\'' % (
+        user_id
+    )
+    cur.execute(query)
+    rows = cur.fetchall()
+    cur.close()
+
+    if (len(rows) != 1):
+        return None
+
+    user = rows[0]
+
+    js = {'name' : user['name'],
+          'qr' : user['qr'],
+          'balance' : get_user_balance(user_id)
+         })
     return js
+
+def get_user_balance(user_id):
+    return 9000
 
 if __name__ == '__main__':
     app.run()
