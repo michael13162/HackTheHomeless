@@ -80,9 +80,9 @@ public class DonationHistoryPage extends AppCompatActivity {
                                         public void onClick(View view) {
                                             try {
                                                 Intent intent = new Intent(me, QRHistoryPage.class);
-                                                intent.putExtra("id", donation.get("id").toString());
+                                                intent.putExtra("id", donation.get("spenderId").toString());
                                                 startActivity(intent);
-                                            } catch (JSONException e) { }
+                                            } catch (JSONException e) { e.printStackTrace(); }
                                         }
                                     });
                                     addedLayout.addView(seeMoreButton);
