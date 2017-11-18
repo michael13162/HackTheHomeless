@@ -87,7 +87,7 @@ def purchases():
         purchases.append({
             'spenderId' : spenderId,
             'amount' : row['amount'],
-            'description' row['description'],
+            'description' : row['description'],
             'date' : row['temporal']
         })
 
