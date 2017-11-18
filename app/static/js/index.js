@@ -115,7 +115,7 @@ $('#register-button').on('click', function(e) {
               sign = '+';
               colorClass = 'donation-row';
             }
-            var markup = "<tr class=" + colorClass + "><td>" + element.date + "</td><td>" + element.type + "</td><td>" + element.description + "</td><td>" + sign + " $" + element.amount + "</td></tr>";
+            var markup = "<tr class=" + colorClass + "><td>" + element.date + "</td><td>" + element.type + "</td><td>" + element.description + "</td><td>" + sign + " " + element.amount + " HTH</td></tr>";
             $transactionTable.append(markup);
           });
         },
@@ -188,7 +188,7 @@ $('#login-button').on('click', function(e) {
               sign = '+';
               colorClass = 'donation-row';
             }
-            var markup = "<tr class=" + colorClass + "><td>" + element.date + "</td><td>" + element.type + "</td><td>" + element.description + "</td><td>" + sign + " $" + element.amount + "</td></tr>";
+            var markup = "<tr class=" + colorClass + "><td>" + element.date + "</td><td>" + element.type + "</td><td>" + element.description + "</td><td>" + sign + " " + element.amount + " HTH</td></tr>";
             $transactionTable.append(markup);
           });
         },

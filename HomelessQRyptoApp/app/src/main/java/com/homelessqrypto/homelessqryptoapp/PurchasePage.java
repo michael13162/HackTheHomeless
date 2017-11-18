@@ -37,7 +37,7 @@ public class PurchasePage extends AppCompatActivity {
                             try {
                                 double value = (Double) response.get("balance");
                                 TextView balanceText = (TextView) findViewById(R.id.balance_text);
-                                balanceText.setText("Balance: " + String.format("%.2f", value));
+                                balanceText.setText("Balance: " + String.format("%.2f", value) + " HTH");
                             } catch (JSONException e) { }
                         }
                     },
@@ -61,7 +61,8 @@ public class PurchasePage extends AppCompatActivity {
                                 @Override
                                 public void onResponse(JSONObject response) {
                                     TextView balanceText = (TextView) findViewById(R.id.balance_text);
-                                    balanceText.setText("Balance: " + String.format("%.2f", Double.parseDouble(balanceText.getText().toString()) + 100));
+                                    String balanceString = balanceText.getText().toString();
+                                    balanceText.setText("Balance: " + String.format("%.2f", Double.parseDouble(balanceString.substring(9, balanceString.length() - 4)) + 100));
                                 }
                             },
                             new Response.ErrorListener() {
