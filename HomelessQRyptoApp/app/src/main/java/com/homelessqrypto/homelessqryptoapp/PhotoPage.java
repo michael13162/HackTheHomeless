@@ -1,9 +1,13 @@
 package com.homelessqrypto.homelessqryptoapp;
 
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.Intent;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
@@ -19,8 +23,8 @@ public class PhotoPage extends AppCompatActivity implements ZXingScannerView.Res
     public void onCreate(Bundle state) {
         super.onCreate(state);
         mScannerView = new ZXingScannerView(this);   // Programmatically initialize the scanner view
-        setContentView(mScannerView);
         target = getIntent().getIntExtra(MainPage.TARGET, MainPage.QR_HISTORY_PAGE);
+        setContentView(mScannerView);
     }
 
     @Override
@@ -36,9 +40,11 @@ public class PhotoPage extends AppCompatActivity implements ZXingScannerView.Res
         mScannerView.stopCamera();           // Stop camera on pause
     }
 
+
     @Override
     public void handleResult(Result rawResult) {
         // Do something with the result here
+
         if(rawResult.getBarcodeFormat() == BarcodeFormat.QR_CODE) {
             if(target == MainPage.QR_HISTORY_PAGE){
                 Intent intent = new Intent(this, QRHistoryPage.class);
