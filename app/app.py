@@ -61,6 +61,14 @@ def purchases():
     can get publicHash OR id as url params
     return date, description, amount, id
     '''
+    publicHash = request.args.get('publicHash', '')
+    userId = request.args.get('userId', '')
+    if (publicHash == '' and userId == ''):
+        return message_response(400, 'The query string does not have a publicHash or a userId', 'application/json')
+
+    query = ''
+    if (publicHash != ''):
+        query = 'select * from purchases where publicHash=\'%s\'' % (publicHash)
     # TODO Michael
 
 @app.route('/api/account/user/donate', methods=['POST'])
@@ -100,7 +108,6 @@ def purchase():
     gets amount, description, email, password, publicHash
     POV of sellers
     if homeless person buying food, then amount is positive
-    if donator buying crypto, then amount if positive
     '''
     user_id = get_user_id(request)
     # TODO Michael
@@ -256,6 +263,7 @@ def get_user_donations(user_id):
     return a json dictionary encoding the:
         date
         amount
+        name (homeless_name)
         spender_id (homeless_id)
     '''
     query = 'select * from donations where donorId=\'%s\'' % (
@@ -266,8 +274,11 @@ def get_user_donations(user_id):
     js = { 'donations': [] }
     donations = js['donations']
     for row in rows:
+        spenderId = row['spenderId']
+        name = get_user_data(spenderId)['name']
         donations.append({
-            'spenderId' : row['spenderId'],
+            'spenderId' : spenderId,
+            'name' : name,
             'amount' : row['amount'],
             'date' : row['temporal'],
         })
