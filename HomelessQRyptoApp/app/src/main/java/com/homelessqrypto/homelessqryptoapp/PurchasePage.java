@@ -35,7 +35,7 @@ public class PurchasePage extends AppCompatActivity {
                         @Override
                         public void onResponse(JSONObject response) {
                             try {
-                                double value = (Double) response.get("balance");
+                                double value = (Double) Double.valueOf(response.get("balance").toString());
                                 TextView balanceText = (TextView) findViewById(R.id.balance_text);
                                 balanceText.setText("Balance: " + String.format("%.2f", value) + " HTH");
                             } catch (JSONException e) { }
@@ -60,9 +60,13 @@ public class PurchasePage extends AppCompatActivity {
                             new Response.Listener<JSONObject>() {
                                 @Override
                                 public void onResponse(JSONObject response) {
-                                    TextView balanceText = (TextView) findViewById(R.id.balance_text);
-                                    String balanceString = balanceText.getText().toString();
-                                    balanceText.setText("Balance: " + String.format("%.2f", Double.parseDouble(balanceString.substring(9, balanceString.length() - 4)) + 100));
+                                    try {
+                                        String newBalance = response.get("balance").toString();
+                                        TextView balanceText = (TextView) findViewById(R.id.balance_text);
+                                        balanceText.setText("Balance: " + String.format("%.2f", Double.parseDouble(newBalance)) + " HTH");
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
                             },
                             new Response.ErrorListener() {

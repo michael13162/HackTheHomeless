@@ -57,20 +57,19 @@ public class MainPage extends AppCompatActivity {
                 GlobalApplicationProperties.name = reader.readLine();
                 GlobalApplicationProperties.email = reader.readLine();
                 GlobalApplicationProperties.password = reader.readLine();
+                reader.close();
             } catch (Exception e) { }
         } else {
             try {
                 FileWriter writer = new FileWriter(file);
-                Cursor c = getApplication().getContentResolver().query(ContactsContract.Profile.CONTENT_URI, null, null, null, null);
-                c.moveToFirst();
-                String name = c.getString(c.getColumnIndex("display_name"));
-                c.close();
+                String name = "William Li";
                 GlobalApplicationProperties.name = name;
                 GlobalApplicationProperties.email = name + "@gmail.com";
                 GlobalApplicationProperties.password = UUID.randomUUID().toString();
-                writer.write(GlobalApplicationProperties.name);
-                writer.write(GlobalApplicationProperties.email);
-                writer.write(GlobalApplicationProperties.password);
+                writer.write(GlobalApplicationProperties.name + "\n");
+                writer.write(GlobalApplicationProperties.email + "\n");
+                writer.write(GlobalApplicationProperties.password + "\n");
+                writer.close();
 
                 RequestQueue queue = Volley.newRequestQueue(this);
                 String url = GlobalApplicationProperties.serverUrl + "/api/account/register";
