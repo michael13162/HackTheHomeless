@@ -62,6 +62,12 @@ $('#register-button').on('click', function(e) {
   var lastName =  $('#last-name-input').val();
   var emailInput = $('#email-input').val();
   var passwordInput = $('#password-input').val();
+  var requestObject = {
+    name: firstName + ' ' + lastName,
+    email: emailInput,
+    password: passwordInput
+  };
+
   $inputForm.hide();
   $popup.show();
   $popupText.text('Signing Up').show();
@@ -69,12 +75,9 @@ $('#register-button').on('click', function(e) {
   $popupButton.hide();
   $.ajax({
     type: 'POST',
-    url: server_url + "/api/account/register",
-    data: {
-      name: firstName + ' ' + lastName,
-      email: emailInput,
-      password: passwordInput
-    },
+    url: server_url + '/api/account/register',
+    contentType: 'application/json',
+    data: JSON.stringify(requestObject),
     success: function(data) {
       $inputForm.hide();
       $popup.hide();
@@ -93,6 +96,11 @@ $('#register-button').on('click', function(e) {
 $('#login-button').on('click', function(e) {
   var email = $('#email-field').val();
   var password = $('#password-field').val();
+  var requestObject = {
+    email: email,
+    password: password
+  };
+
   $inputForm.hide();
   $popup.show();
   $popupText.text('Logging In').show();
@@ -102,24 +110,9 @@ $('#login-button').on('click', function(e) {
   $.ajax({
     type: 'POST',
     url: server_url + '/api/account/user',
-    data: {
-      email: email,
-      password: password
-    },
+    contentType: 'application/json',
+    data: JSON.stringify(requestObject),
     success: function(data) {
-      $inputForm.hide();
-      $popup.hide();
-      $mainPage.show();
-
-      $qrDisplay.show();
-      $nameDiv.html('Name: William Li').show();
-      $balanceDiv.html('Balance: $500').show();
-      $transactionSpinner.show();
-    },
-    error: function(data) {
-      // $popupText.text('Could not find account')
-      // $popupButton.html('Back to Login').show();
-      // $popupSpinner.hide();
       $inputForm.hide();
       $popup.hide();
       $mainPage.show();
@@ -133,6 +126,11 @@ $('#login-button').on('click', function(e) {
       $nameDiv.html('Name: William Li').show();
       $balanceDiv.html('Balance: $500').show();
       $transactionSpinner.show();
+    },
+    error: function(data) {
+      $popupText.text('Could not find account')
+      $popupButton.html('Back to Login').show();
+      $popupSpinner.hide();
     }
   });
 });

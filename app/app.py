@@ -1,15 +1,15 @@
 import json
 import sqlite3
 import os
-from flask import Flask, g, render_template, request
+from flask import Flask, g, render_template, request, Response
 
 template_dir = os.path.abspath('web')
 DATABASE = '../database/hackthehomeless.db'
 app = Flask(__name__, template_folder = template_dir)
 
 @app.route('/')
-def login():
-    return render_template('login.html')
+def index():
+    return render_template('index.html')
 
 @app.route('/api/account/register', methods=['POST'])
 def register():
