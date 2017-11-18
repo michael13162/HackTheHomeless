@@ -74,6 +74,8 @@ def purchases():
 
     if (spenderId == ''):
         spenderId = get_spender_id(publicHash)
+        if (spenderId == None)
+            return message_response(400, 'ERROR', 'application/json')
 
     query = '''
             select * from purchases where spenderId=\'%s\'
@@ -143,6 +145,8 @@ def purchase():
     amount = purchase_info['amount']
     description = purchase_info['description']
     spenderId = get_spender_id(purchase_info['publicHash'])
+    if (spenderId == None)
+        return message_response(400, 'ERROR', 'application/json')
 
     if amount > get_user_data(spenderId)['balance']:
         return message_response(400, 'The spender does not have enough balance for this purchase amount', 'application/json')
@@ -206,6 +210,7 @@ def check_user_rows(rows):
         return message_response(400, 'There are no users with these credentials', 'application/json')
     if (len(rows) > 1):
         return message_response(400, 'There is more than one user with these credentials', 'application/json')
+    return None
 
 '''
 The request needs to contain and email and password encoded using json.
@@ -222,7 +227,8 @@ def get_user_id(request):
         password
     )
     rows = query_db(query)
-    check_user_rows(rows)
+    if check_user_rows(rows) != None:
+        return None
 
     user_id = rows[0]['id']
     return user_id
@@ -238,7 +244,8 @@ def get_user_data(user_id):
         user_id
     )
     rows = query_db(query)
-    check_user_rows(rows)
+    if check_user_rows(rows) != None:
+        return None
 
     user = rows[0]
 
@@ -318,6 +325,8 @@ def get_user_donations(user_id):
     for row in rows:
         spenderId = row['spenderId']
         name = get_user_data(spenderId)['name']
+        if (name == None):
+            return message_response(400, 'ERROR', 'application/json')
         donations.append({
             'spenderId' : spenderId,
             'name' : name,
@@ -330,7 +339,8 @@ def get_user_donations(user_id):
 def get_spender_id(publicHash):
     query = 'select * from users where publicHash=\'%s\'' % (publicHash)
     rows = query_db(query)
-    check_user_rows(rows)
+    if check_user_rows(rows) != None:
+        return None
     return rows[0]['id']
 
 if __name__ == '__main__':
