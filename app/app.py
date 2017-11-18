@@ -124,19 +124,25 @@ def buy():
     user_data = get_user_data(user_id)
     publicHash = user_data['qr']
     amount = request.get_json()['amount']
-    # TODO Igor does this using the blockchain using the publicHash and amount
+
     balance = blockchain.getBalance(publicHash)
     blockchain.setBalance(publicHash, balance + amount)
+    
     return message_response(200, 'The purchase of HTH was successful!', 'application/json')
 
 @app.route('/api/account/user/purchase', methods=['POST'])
 def purchase():
     '''
     gets amount, description, email, password, publicHash
-    POV of sellers
-    if homeless person buying food, then amount is positive
+    POV of sellers purchasing HTH
     '''
     user_id = get_user_id(request)
+    purchase_info = request.get_json()
+
+    amount = purchase_info['amount']
+    description = purchase_info['description']
+    publicHash = purchase_info['publicHash']
+
     # TODO Michael
 
 @app.route('/api/account/user/balance', methods=['GET'])
@@ -148,7 +154,7 @@ def balance():
     if (publicHash == ''):
         return message_response(400, 'The publicHash was not provided', 'application/json')
 
-    balance = get_user_balance(publicHash)
+    balance = blockchain.getBalance(publicHash)
     js = { 'balance' : balance }
     return Response(json.dumps(js), mimetype='application/json')
 
@@ -227,14 +233,9 @@ def get_user_data(user_id):
     js = {
         'name' : user['name'],
         'qr' : user['publicHash'],
-        'balance' : get_user_balance(user['publicHash'])
+        'balance' : blockchain.getBalance(user['publicHash'])
      }
     return js
-
-def get_user_balance(public_hash):
-    # TODO Igor gets this from blockchain using the publicHash
-    balance = blockchain.getBalance(public_hash)
-    return balance
 
 def get_user_transactions(user_id):
     '''
