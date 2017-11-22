@@ -124,32 +124,16 @@ public class QRHistoryPage extends AppCompatActivity {
                                                     new Response.ErrorListener() {
                                                         @Override
                                                         public void onErrorResponse(VolleyError error) {
-//                                                            AlertDialog.Builder builder;
-//                                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//                                                                builder = new AlertDialog.Builder(me, android.R.style.Theme_Material_Dialog_Alert);
-//                                                            } else {
-//                                                                builder = new AlertDialog.Builder(me);
-//                                                            }
-//                                                            builder.setTitle("Donation Failed")
-//                                                                    .setMessage("Insufficient Funds to Make Donation")
-//                                                                    .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-//                                                                        public void onClick(DialogInterface dialog, int which) { }
-//                                                                    })
-//                                                                    .setIcon(android.R.drawable.ic_dialog_alert)
-//                                                                    .show();
                                                             AlertDialog.Builder builder;
                                                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                                                                 builder = new AlertDialog.Builder(me, android.R.style.Theme_Material_Dialog_Alert);
                                                             } else {
                                                                 builder = new AlertDialog.Builder(me);
                                                             }
-                                                            builder.setTitle("Donation Succeeded")
-                                                                    .setMessage("You have donated " + donationAmount + " HTH")
+                                                            builder.setTitle("Donation Failed")
+                                                                    .setMessage("Insufficient Funds to Make Donation")
                                                                     .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                                                                        public void onClick(DialogInterface dialog, int which) {
-                                                                            Intent intent = new Intent(me, MainPage.class);
-                                                                            startActivity(intent);
-                                                                        }
+                                                                        public void onClick(DialogInterface dialog, int which) { }
                                                                     })
                                                                     .setIcon(android.R.drawable.ic_dialog_alert)
                                                                     .show();
