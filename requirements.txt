@@ -74,7 +74,7 @@ pysha3==1.0.2
 python-docx==0.8.6
 requests==2.18.4
 rlp==0.6.0
-rsa==3.4.2
+rsa==4.7
 semantic-version==2.6.0
 six==1.11.0
 tenacity==4.5.0
